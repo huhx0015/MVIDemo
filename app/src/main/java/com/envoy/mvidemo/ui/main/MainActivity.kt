@@ -3,8 +3,8 @@ package com.envoy.mvidemo.ui.main
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.activity.viewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.envoy.mvidemo.R
 import kotlinx.android.synthetic.main.main_activity.button1
 import kotlinx.android.synthetic.main.main_activity.button2
@@ -15,13 +15,10 @@ import kotlinx.android.synthetic.main.main_activity.textView
 
 class MainActivity : AppCompatActivity() {
 
-  private lateinit var viewModel: MainViewModel
+  private val viewModel: MainViewModel by viewModels()
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
-
-    viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
-
     initView()
     observe()
   }
