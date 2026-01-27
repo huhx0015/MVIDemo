@@ -3,19 +3,23 @@ package com.envoy.mvidemo.ui.main
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
+import android.widget.ProgressBar
+import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
 import com.envoy.mvidemo.R
-import kotlinx.android.synthetic.main.main_activity.button1
-import kotlinx.android.synthetic.main.main_activity.button2
-import kotlinx.android.synthetic.main.main_activity.loadButton
-import kotlinx.android.synthetic.main.main_activity.progressBar
-import kotlinx.android.synthetic.main.main_activity.stateTextView
-import kotlinx.android.synthetic.main.main_activity.textView
 
 class MainActivity : AppCompatActivity() {
 
   private val viewModel: MainViewModel by viewModels()
+  
+  private lateinit var button1: Button
+  private lateinit var button2: Button
+  private lateinit var loadButton: Button
+  private lateinit var progressBar: ProgressBar
+  private lateinit var stateTextView: TextView
+  private lateinit var textView: TextView
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -25,6 +29,14 @@ class MainActivity : AppCompatActivity() {
 
   private fun initView() {
     setContentView(R.layout.main_activity)
+    
+    button1 = findViewById(R.id.button1)
+    button2 = findViewById(R.id.button2)
+    loadButton = findViewById(R.id.loadButton)
+    progressBar = findViewById(R.id.progressBar)
+    stateTextView = findViewById(R.id.stateTextView)
+    textView = findViewById(R.id.textView)
+    
     initButton()
   }
 
