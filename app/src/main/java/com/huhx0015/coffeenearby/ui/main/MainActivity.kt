@@ -1,4 +1,4 @@
-package com.envoy.mvidemo.ui.main
+package com.huhx0015.coffeenearby.ui.main
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,7 +8,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.lifecycle.Observer
-import com.envoy.mvidemo.R
+import com.huhx0015.coffeenearby.R
 
 class MainActivity : AppCompatActivity() {
 

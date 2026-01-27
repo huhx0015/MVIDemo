@@ -1,4 +1,4 @@
-package com.envoy.mvidemo
+package com.huhx0015.coffeenearby
 
 import org.junit.Test
 

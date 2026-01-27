@@ -1,4 +1,4 @@
-package com.envoy.mvidemo.ui.main
+package com.huhx0015.coffeenearby.ui.main
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

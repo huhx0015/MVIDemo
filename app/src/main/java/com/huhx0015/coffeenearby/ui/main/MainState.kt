@@ -1,4 +1,4 @@
-package com.envoy.mvidemo.ui.main
+package com.huhx0015.coffeenearby.ui.main
 
 sealed class MainState {
   object BaseState : MainState()

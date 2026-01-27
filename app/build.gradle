@@ -2,10 +2,10 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    namespace 'com.envoy.mvidemo'
+    namespace 'com.huhx0015.coffeenearby'
     compileSdkVersion 36
     defaultConfig {
-        applicationId "com.envoy.mvidemo"
+        applicationId "com.huhx0015.coffeenearby"
         minSdkVersion 24
         targetSdkVersion 36
         versionCode 1

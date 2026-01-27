@@ -1,4 +1,4 @@
-package com.envoy.mvidemo
+package com.huhx0015.coffeenearby
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
