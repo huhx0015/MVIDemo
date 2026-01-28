@@ -33,6 +33,7 @@ android {
 ext {
   activity_version = "1.12.2"
   app_compat_version = "1.7.1"
+  coil_version = "3.3.0"
   compose_activity_version = "1.12.2"
   compose_bom_version = "2026.01.00"
   constraint_layout_version = "2.2.1"
@@ -43,6 +44,9 @@ ext {
   junit_ext_version = "1.3.0"
   junit_version = "4.13.2"
   lifecycle_version = "2.10.0"
+  moshi_version = "1.15.2"
+  okhttp_bom_version = "5.3.2"
+  retrofit_version = "3.0.0"
 }
 
 dependencies {
@@ -66,6 +70,12 @@ dependencies {
   implementation "androidx.activity:activity-compose:$compose_activity_version"
   implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version"
 
+  // COIL:
+  implementation "io.coil-kt.coil3:coil:$coil_version"
+  implementation "io.coil-kt.coil3:coil-svg:$coil_version"
+  implementation "io.coil-kt.coil3:coil-compose:$coil_version"
+  implementation "io.coil-kt.coil3:coil-network-okhttp:$coil_version"
+
   // HILT:
   implementation "com.google.dagger:hilt-android:$hilt_version"
   implementation "androidx.hilt:hilt-navigation-compose:$hilt_nav_compose_version"
@@ -74,6 +84,21 @@ dependencies {
 
   // KOTLIN:
   implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+  // MOSHI:
+  implementation "com.squareup.moshi:moshi:$moshi_version"
+  implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
+  implementation "com.squareup.moshi:moshi-adapters:$moshi_version"
+  ksp "com.squareup.moshi:moshi-kotlin-codegen:$moshi_version"
+
+  // OKHTTP:
+  implementation platform("com.squareup.okhttp3:okhttp-bom:$okhttp_bom_version")
+  implementation "com.squareup.okhttp3:okhttp"
+  implementation "com.squareup.okhttp3:logging-interceptor"
+
+  // RETROFIT:
+  implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+  implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
 
   // ANDROID TEST:
   androidTestImplementation "androidx.test.ext:junit:$junit_ext_version"
