@@ -4,9 +4,12 @@ import com.huhx0015.coffeenearby.ui.base.BaseViewModelV2
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import javax.inject.Inject
 
 @HiltViewModel
-class CoffeeShopListViewModel() : BaseViewModelV2<CoffeeShopListState, CoffeeShopListIntent, CoffeeShopListEvent>() {
+class CoffeeShopListViewModel @Inject constructor(
+
+) : BaseViewModelV2<CoffeeShopListState, CoffeeShopListIntent, CoffeeShopListEvent>() {
 
   override val state: StateFlow<CoffeeShopListState>
     get() = TODO("Not yet implemented")
