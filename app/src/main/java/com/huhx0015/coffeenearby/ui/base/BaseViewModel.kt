@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 
-abstract class BaseViewModelV2<S : BaseState, I : BaseIntent, E : BaseEvent> : ViewModel() {
+abstract class BaseViewModel<S : BaseState, I : BaseIntent, E : BaseEvent> : ViewModel() {
   abstract val state: StateFlow<S>
   abstract val events: Flow<E>
 

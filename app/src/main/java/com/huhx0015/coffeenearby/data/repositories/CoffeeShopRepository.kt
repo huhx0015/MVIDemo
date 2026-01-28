@@ -5,9 +5,7 @@ import com.huhx0015.coffeenearby.network.CoffeeShopApi
 import com.huhx0015.coffeenearby.network.models.Business
 import retrofit2.await
 
-class CoffeeShopRepository(
-  private val coffeeShopApi: CoffeeShopApi
-) {
+class CoffeeShopRepository(private val coffeeShopApi: CoffeeShopApi) {
 
   companion object {
     private const val DEFAULT_ADDRESS = "Plymouth, MN, U.S.A."
@@ -23,7 +21,6 @@ class CoffeeShopRepository(
       limit = DEFAULT_LIMIT,
       sortBy = SORT_BY_DISTANCE
     ).await()
-
     return response.businesses.map { it.toCoffeeShop() }
   }
 

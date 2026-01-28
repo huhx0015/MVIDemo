@@ -41,6 +41,13 @@ class NetworkModule {
 
   @Provides
   @Singleton
+  fun provideMoshi(): Moshi {
+    return Moshi.Builder()
+      .build()
+  }
+
+  @Provides
+  @Singleton
   fun provideRetrofit(
     okHttpClient: OkHttpClient,
     moshi: Moshi
