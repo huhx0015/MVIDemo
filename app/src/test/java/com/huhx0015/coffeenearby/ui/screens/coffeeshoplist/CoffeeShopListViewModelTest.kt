@@ -77,7 +77,7 @@ class CoffeeShopListViewModelTest {
       createMockCoffeeShop("1", "Caribou Coffee"),
       createMockCoffeeShop("2", "Starbucks")
     )
-    coEvery { repository.getCoffeeShops(offset = 0) } returns mockCoffeeShops
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } returns mockCoffeeShops
 
     // When
     viewModel.sendIntent(CoffeeShopListIntent.LoadCoffeeShopListIntent)
@@ -92,13 +92,13 @@ class CoffeeShopListViewModelTest {
     assertEquals(2, state.currentOffset)
     assertTrue(state.hasMorePages)
 
-    coVerify { repository.getCoffeeShops(offset = 0) }
+    coVerify { repository.getCoffeeShops(term = "coffee", offset = 0) }
   }
 
   @Test
   fun `LoadCoffeeShopListIntent prevents multiple simultaneous loads`() = runTest {
     // Given
-    coEvery { repository.getCoffeeShops() } returns emptyList()
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } returns emptyList()
 
     // When - Send intent twice quickly
     viewModel.sendIntent(CoffeeShopListIntent.LoadCoffeeShopListIntent)
@@ -106,14 +106,14 @@ class CoffeeShopListViewModelTest {
     advanceUntilIdle()
 
     // Then - Repository should only be called once
-    coVerify(exactly = 1) { repository.getCoffeeShops(offset = 0) }
+    coVerify(exactly = 1) { repository.getCoffeeShops(term = "coffee", offset = 0) }
   }
 
   @Test
   fun `LoadCoffeeShopListIntent handles error and emits error event`() = runTest {
     // Given
     val errorMessage = "Network error"
-    coEvery { repository.getCoffeeShops() } throws Exception(errorMessage)
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } throws Exception(errorMessage)
 
     // When
     viewModel.events.test {
@@ -134,7 +134,7 @@ class CoffeeShopListViewModelTest {
   fun `RefreshCoffeeShopListIntent sets refreshing state and reloads coffee shops`() = runTest {
     // Given - First load some data
     val initialCoffeeShops = listOf(createMockCoffeeShop("1", "Initial Coffee"))
-    coEvery { repository.getCoffeeShops(offset = 0) } returns initialCoffeeShops
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } returns initialCoffeeShops
     viewModel.sendIntent(CoffeeShopListIntent.LoadCoffeeShopListIntent)
     advanceUntilIdle()
 
@@ -143,7 +143,7 @@ class CoffeeShopListViewModelTest {
       createMockCoffeeShop("1", "Refreshed Coffee"),
       createMockCoffeeShop("2", "New Coffee")
     )
-    coEvery { repository.getCoffeeShops(offset = 0) } returns refreshedCoffeeShops
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } returns refreshedCoffeeShops
     viewModel.sendIntent(CoffeeShopListIntent.RefreshCoffeeShopListIntent)
     advanceUntilIdle()
 
@@ -159,7 +159,7 @@ class CoffeeShopListViewModelTest {
   fun `RefreshCoffeeShopListIntent resets offset and hasMorePages`() = runTest {
     // Given - Load initial data
     val initialCoffeeShops = listOf(createMockCoffeeShop("1", "Coffee 1"))
-    coEvery { repository.getCoffeeShops() } returns initialCoffeeShops
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } returns initialCoffeeShops
     viewModel.sendIntent(CoffeeShopListIntent.LoadCoffeeShopListIntent)
     advanceUntilIdle()
 
@@ -179,7 +179,7 @@ class CoffeeShopListViewModelTest {
       createMockCoffeeShop("1", "Coffee 1"),
       createMockCoffeeShop("2", "Coffee 2")
     )
-    coEvery { repository.getCoffeeShops(offset = 0) } returns initialCoffeeShops
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } returns initialCoffeeShops
     viewModel.sendIntent(CoffeeShopListIntent.LoadCoffeeShopListIntent)
     advanceUntilIdle()
 
@@ -188,7 +188,7 @@ class CoffeeShopListViewModelTest {
       createMockCoffeeShop("3", "Coffee 3"),
       createMockCoffeeShop("4", "Coffee 4")
     )
-    coEvery { repository.getCoffeeShops(offset = 2) } returns moreCoffeeShops
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 2) } returns moreCoffeeShops
     viewModel.sendIntent(CoffeeShopListIntent.LoadMoreCoffeeShopsIntent)
     advanceUntilIdle()
 
@@ -201,19 +201,19 @@ class CoffeeShopListViewModelTest {
     assertEquals(4, state.currentOffset)
     assertTrue(state.hasMorePages)
 
-    coVerify { repository.getCoffeeShops(offset = 2) }
+    coVerify { repository.getCoffeeShops(term = "coffee", offset = 2) }
   }
 
   @Test
   fun `LoadMoreCoffeeShopsIntent sets hasMorePages to false when empty list returned`() = runTest {
     // Given - Initial load
     val initialCoffeeShops = listOf(createMockCoffeeShop("1", "Coffee 1"))
-    coEvery { repository.getCoffeeShops(offset = 0) } returns initialCoffeeShops
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } returns initialCoffeeShops
     viewModel.sendIntent(CoffeeShopListIntent.LoadCoffeeShopListIntent)
     advanceUntilIdle()
 
     // When - Load more returns empty list
-    coEvery { repository.getCoffeeShops(offset = 1) } returns emptyList()
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 1) } returns emptyList()
     viewModel.sendIntent(CoffeeShopListIntent.LoadMoreCoffeeShopsIntent)
     advanceUntilIdle()
 
@@ -228,24 +228,24 @@ class CoffeeShopListViewModelTest {
   fun `LoadMoreCoffeeShopsIntent prevents loading when already loading more`() = runTest {
     // Given - Initial load
     val initialCoffeeShops = listOf(createMockCoffeeShop("1", "Coffee 1"))
-    coEvery { repository.getCoffeeShops(offset = 0) } returns initialCoffeeShops
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } returns initialCoffeeShops
     viewModel.sendIntent(CoffeeShopListIntent.LoadCoffeeShopListIntent)
     advanceUntilIdle()
 
     // When - Send load more twice
-    coEvery { repository.getCoffeeShops(offset = 1) } returns listOf(createMockCoffeeShop("2", "Coffee 2"))
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 1) } returns listOf(createMockCoffeeShop("2", "Coffee 2"))
     viewModel.sendIntent(CoffeeShopListIntent.LoadMoreCoffeeShopsIntent)
     viewModel.sendIntent(CoffeeShopListIntent.LoadMoreCoffeeShopsIntent)
     advanceUntilIdle()
 
     // Then - Repository should only be called once
-    coVerify(exactly = 1) { repository.getCoffeeShops(offset = 1) }
+    coVerify(exactly = 1) { repository.getCoffeeShops(term = "coffee", offset = 1) }
   }
 
   @Test
   fun `LoadMoreCoffeeShopsIntent prevents loading when no more pages`() = runTest {
     // Given - Initial load with empty result (no more pages)
-    coEvery { repository.getCoffeeShops(offset = 0) } returns emptyList()
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } returns emptyList()
     viewModel.sendIntent(CoffeeShopListIntent.LoadCoffeeShopListIntent)
     advanceUntilIdle()
 
@@ -254,20 +254,20 @@ class CoffeeShopListViewModelTest {
     advanceUntilIdle()
 
     // Then - Should not call repository again
-    coVerify(exactly = 1) { repository.getCoffeeShops() }
+    coVerify(exactly = 1) { repository.getCoffeeShops(term = "coffee", offset = 0) }
   }
 
   @Test
   fun `LoadMoreCoffeeShopsIntent handles error and emits error event`() = runTest {
     // Given - Initial load
     val initialCoffeeShops = listOf(createMockCoffeeShop("1", "Coffee 1"))
-    coEvery { repository.getCoffeeShops(offset = 0) } returns initialCoffeeShops
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 0) } returns initialCoffeeShops
     viewModel.sendIntent(CoffeeShopListIntent.LoadCoffeeShopListIntent)
     advanceUntilIdle()
 
     // When - Load more fails
     val errorMessage = "Failed to load more"
-    coEvery { repository.getCoffeeShops(offset = 1) } throws Exception(errorMessage)
+    coEvery { repository.getCoffeeShops(term = "coffee", offset = 1) } throws Exception(errorMessage)
 
     viewModel.events.test {
       viewModel.sendIntent(CoffeeShopListIntent.LoadMoreCoffeeShopsIntent)

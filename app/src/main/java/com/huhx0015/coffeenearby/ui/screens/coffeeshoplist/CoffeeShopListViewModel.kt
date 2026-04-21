@@ -4,7 +4,7 @@ import androidx.lifecycle.viewModelScope
 import com.huhx0015.coffeenearby.data.repositories.CoffeeShopRepository
 import com.huhx0015.coffeenearby.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,9 +17,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlinx.coroutines.FlowPreview
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
@@ -92,9 +90,7 @@ class CoffeeShopListViewModel @Inject constructor(
 
   private suspend fun loadCoffeeShopsWithTerm(term: String) {
     runCatching {
-      withContext(Dispatchers.IO) {
-        coffeeShopRepository.getCoffeeShops(term = term)
-      }
+      coffeeShopRepository.getCoffeeShops(term = term)
     }.onSuccess { coffeeShopList ->
       _state.update { it.coffeeShopLoaded(coffeeShopList) }
     }.onFailure { error ->
