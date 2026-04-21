@@ -14,10 +14,13 @@ class CoffeeShopRepository(private val coffeeShopApi: CoffeeShopApi) {
     private const val SORT_BY_DISTANCE = "distance"
   }
 
-  suspend fun getCoffeeShops(offset: Int = 0): List<CoffeeShop> {
+  suspend fun getCoffeeShops(
+    term: String = DEFAULT_TERM,
+    offset: Int = 0
+  ): List<CoffeeShop> {
     val response = coffeeShopApi.getCoffeeShopBusinesses(
       location = DEFAULT_ADDRESS,
-      term = DEFAULT_TERM,
+      term = term,
       limit = DEFAULT_LIMIT,
       sortBy = SORT_BY_DISTANCE,
       offset = offset

@@ -4,16 +4,24 @@ import androidx.lifecycle.viewModelScope
 import com.huhx0015.coffeenearby.data.repositories.CoffeeShopRepository
 import com.huhx0015.coffeenearby.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlinx.coroutines.FlowPreview
 
+@OptIn(FlowPreview::class)
 @HiltViewModel
 class CoffeeShopListViewModel @Inject constructor(
   val coffeeShopRepository: CoffeeShopRepository
@@ -29,6 +37,13 @@ class CoffeeShopListViewModel @Inject constructor(
   )
   override val events = _events.asSharedFlow()
 
+  private val _searchQueryFlow = MutableStateFlow(String())
+  private val searchQueryFlow: StateFlow<String> = _searchQueryFlow.asStateFlow()
+
+  init {
+    observeSearchQueryFlow()
+  }
+
   override suspend fun processIntent(intent: CoffeeShopListIntent) {
     when (intent) {
       is CoffeeShopListIntent.LoadCoffeeShopListIntent -> onLoadCoffeeShopList()
@@ -38,7 +53,29 @@ class CoffeeShopListViewModel @Inject constructor(
     }
   }
 
+  companion object {
+    private const val VAL_DEFAULT_TERM = "coffee"
+    private const val SEARCH_DEBOUNCE_MS = 500L
+  }
+
+  private fun observeSearchQueryFlow() {
+    viewModelScope.launch {
+      searchQueryFlow
+        .debounce(SEARCH_DEBOUNCE_MS)
+        .distinctUntilChanged()
+        .drop(1)
+        .collectLatest { query ->
+          val term = query.trim().ifBlank { VAL_DEFAULT_TERM }
+          _state.update {
+            it.copy(currentOffset = 0, hasMorePages = true).coffeeShopLoading()
+          }
+          loadCoffeeShopsWithTerm(term = term)
+        }
+    }
+  }
+
   private fun onSearchQueryChanged(query: String) {
+    _searchQueryFlow.update { query }
     _state.update { it.copy(searchQuery = query) }
   }
 
@@ -48,19 +85,21 @@ class CoffeeShopListViewModel @Inject constructor(
 
     _state.update { it.coffeeShopLoading() }
 
-    loadCoffeeShopList()
+    viewModelScope.launch {
+      loadCoffeeShopsWithTerm(term = VAL_DEFAULT_TERM)
+    }
   }
 
-  private fun loadCoffeeShopList() {
-    viewModelScope.launch {
-      runCatching {
-        coffeeShopRepository.getCoffeeShops()
-      }.onSuccess { coffeeShopList ->
-        _state.update { it.coffeeShopLoaded(coffeeShopList) }
-      }.onFailure { error ->
-        _events.emit(CoffeeShopListEvent.ErrorEvent(errorMessage = error.message))
-        _state.update { it.copy(isCoffeeShopListLoading = false, isCoffeeShopListRefreshing = false) }
+  private suspend fun loadCoffeeShopsWithTerm(term: String) {
+    runCatching {
+      withContext(Dispatchers.IO) {
+        coffeeShopRepository.getCoffeeShops(term = term)
       }
+    }.onSuccess { coffeeShopList ->
+      _state.update { it.coffeeShopLoaded(coffeeShopList) }
+    }.onFailure { error ->
+      _events.emit(CoffeeShopListEvent.ErrorEvent(errorMessage = error.message))
+      _state.update { it.copy(isCoffeeShopListLoading = false, isCoffeeShopListRefreshing = false) }
     }
   }
 
@@ -69,7 +108,10 @@ class CoffeeShopListViewModel @Inject constructor(
     if (isRefreshing) return
 
     _state.update { it.copy(currentOffset = 0, hasMorePages = true).coffeeShopRefreshing() }
-    loadCoffeeShopList()
+    val term = state.value.searchQuery.trim().ifBlank { VAL_DEFAULT_TERM }
+    viewModelScope.launch {
+      loadCoffeeShopsWithTerm(term = term)
+    }
   }
 
   private fun onLoadMoreCoffeeShops() {
@@ -86,8 +128,12 @@ class CoffeeShopListViewModel @Inject constructor(
 
   private fun loadMoreCoffeeShops() {
     viewModelScope.launch {
+      val term = state.value.searchQuery.trim().ifBlank { VAL_DEFAULT_TERM }
       runCatching {
-        coffeeShopRepository.getCoffeeShops(offset = state.value.currentOffset)
+        coffeeShopRepository.getCoffeeShops(
+          term = term,
+          offset = state.value.currentOffset
+        )
       }.onSuccess { newCoffeeShops ->
         _state.update { it.coffeeShopLoadedMore(newCoffeeShops) }
       }.onFailure { error ->

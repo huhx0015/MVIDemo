@@ -157,18 +157,6 @@ private fun CoffeeShopScreenContent(
 ) {
   val listState = rememberLazyListState()
 
-  val displayedCoffeeShops = remember(state.coffeeShopList, state.searchQuery) {
-    val q = state.searchQuery.trim()
-    if (q.isEmpty()) {
-      state.coffeeShopList
-    } else {
-      state.coffeeShopList.filter { shop ->
-        shop.name.contains(q, ignoreCase = true) ||
-          shop.address?.contains(q, ignoreCase = true) == true
-      }
-    }
-  }
-
   LaunchedEffect(listState) {
     snapshotFlow {
       val layoutInfo = listState.layoutInfo
@@ -210,7 +198,7 @@ private fun CoffeeShopScreenContent(
             state = listState,
             modifier = Modifier.padding(horizontal = 8.dp)
           ) {
-            items(displayedCoffeeShops, key = { it.id }) { coffeeShop ->
+            items(state.coffeeShopList, key = { it.id }) { coffeeShop ->
               CoffeeShopItem(coffeeShop = coffeeShop)
               Spacer(modifier = Modifier.height(8.dp))
             }
