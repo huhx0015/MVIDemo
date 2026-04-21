@@ -6,4 +6,5 @@ sealed class CoffeeShopListIntent : BaseIntent {
   data object LoadCoffeeShopListIntent: CoffeeShopListIntent()
   data object LoadMoreCoffeeShopsIntent: CoffeeShopListIntent()
   data object RefreshCoffeeShopListIntent: CoffeeShopListIntent()
+  data class SearchQueryChangedIntent(val query: String) : CoffeeShopListIntent()
 }

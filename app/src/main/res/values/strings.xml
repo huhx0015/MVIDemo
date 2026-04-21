@@ -3,6 +3,9 @@
   <string name="app_name">Coffee Nearby</string>
   <string name="error_message">An error occurred</string>
 
+  <!--SEARCH-->
+  <string name="search_bar_placeholder">Search coffee shops</string>
+
   <!--CONTENT DESCRIPTION-->
   <string name="floating_button_description">Floating action button</string>
   <string name="coffee_shop_item_image_description">Business item image</string>

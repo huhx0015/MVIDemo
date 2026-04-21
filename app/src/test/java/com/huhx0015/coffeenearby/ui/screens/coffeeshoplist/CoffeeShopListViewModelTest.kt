@@ -49,11 +49,20 @@ class CoffeeShopListViewModelTest {
     // Then
     val state = viewModel.state.value
     assertTrue(state.coffeeShopList.isEmpty())
+    assertTrue(state.searchQuery.isEmpty())
     assertFalse(state.isCoffeeShopListLoading)
     assertFalse(state.isCoffeeShopListLoadingMore)
     assertFalse(state.isCoffeeShopListRefreshing)
     assertTrue(state.hasMorePages)
     assertEquals(0, state.currentOffset)
+  }
+
+  @Test
+  fun `SearchQueryChangedIntent updates searchQuery`() = runTest {
+    viewModel.sendIntent(CoffeeShopListIntent.SearchQueryChangedIntent("latte"))
+    advanceUntilIdle()
+
+    assertEquals("latte", viewModel.state.value.searchQuery)
   }
 
   @Test

@@ -34,7 +34,12 @@ class CoffeeShopListViewModel @Inject constructor(
       is CoffeeShopListIntent.LoadCoffeeShopListIntent -> onLoadCoffeeShopList()
       is CoffeeShopListIntent.LoadMoreCoffeeShopsIntent -> onLoadMoreCoffeeShops()
       is CoffeeShopListIntent.RefreshCoffeeShopListIntent -> onRefreshCoffeeShopList()
+      is CoffeeShopListIntent.SearchQueryChangedIntent -> onSearchQueryChanged(intent.query)
     }
+  }
+
+  private fun onSearchQueryChanged(query: String) {
+    _state.update { it.copy(searchQuery = query) }
   }
 
   private fun onLoadCoffeeShopList() {

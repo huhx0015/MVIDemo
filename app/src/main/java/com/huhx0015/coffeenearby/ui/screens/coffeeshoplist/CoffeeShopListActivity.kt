@@ -49,7 +49,10 @@ class CoffeeShopListActivity : ComponentActivity() {
         CoffeeShopScreen(
           state = state,
           onRefresh = { viewModel.sendIntent(CoffeeShopListIntent.RefreshCoffeeShopListIntent) },
-          onLoadMore = { viewModel.sendIntent(CoffeeShopListIntent.LoadMoreCoffeeShopsIntent) }
+          onLoadMore = { viewModel.sendIntent(CoffeeShopListIntent.LoadMoreCoffeeShopsIntent) },
+          onSearchQueryChange = { query ->
+            viewModel.sendIntent(CoffeeShopListIntent.SearchQueryChangedIntent(query))
+          }
         )
       }
     }

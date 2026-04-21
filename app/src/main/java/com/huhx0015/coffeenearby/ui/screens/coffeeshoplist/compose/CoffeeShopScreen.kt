@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -22,6 +23,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SearchBar
+import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -51,7 +54,8 @@ import com.huhx0015.coffeenearby.ui.theme.CoffeeNearbyTheme
 internal fun CoffeeShopScreen(
   state: CoffeeShopListState,
   onRefresh: () -> Unit = {},
-  onLoadMore: () -> Unit = {}
+  onLoadMore: () -> Unit = {},
+  onSearchQueryChange: (String) -> Unit = {}
 ) {
   Scaffold(
     topBar = { CoffeeShopScreenTopBar() },
@@ -67,6 +71,7 @@ internal fun CoffeeShopScreen(
         state = state,
         onRefresh = onRefresh,
         onLoadMore = onLoadMore,
+        onSearchQueryChange = onSearchQueryChange,
         modifier = Modifier.padding(paddingValues)
       )
 
@@ -100,6 +105,33 @@ private fun CoffeeShopScreenTopBar() {
   )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CoffeeSearchBar(
+  query: String,
+  onQueryChange: (String) -> Unit,
+  modifier: Modifier = Modifier,
+  onSearch: (String) -> Unit = {}
+) {
+  SearchBar(
+    modifier = modifier.fillMaxWidth(),
+    inputField = {
+      SearchBarDefaults.InputField(
+        query = query,
+        onQueryChange = onQueryChange,
+        onSearch = { onSearch(query) },
+        expanded = false,
+        onExpandedChange = {},
+        placeholder = { Text(stringResource(R.string.search_bar_placeholder)) }
+      )
+    },
+    expanded = false,
+    onExpandedChange = {},
+    windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
+  ) {
+  }
+}
+
 @Composable
 private fun CoffeeShopFloatingActionButton(floatingActionButtonClick: () -> Unit) {
   FloatingActionButton(
@@ -120,9 +152,22 @@ private fun CoffeeShopScreenContent(
   state: CoffeeShopListState,
   onRefresh: () -> Unit,
   onLoadMore: () -> Unit,
+  onSearchQueryChange: (String) -> Unit,
   modifier: Modifier = Modifier
 ) {
   val listState = rememberLazyListState()
+
+  val displayedCoffeeShops = remember(state.coffeeShopList, state.searchQuery) {
+    val q = state.searchQuery.trim()
+    if (q.isEmpty()) {
+      state.coffeeShopList
+    } else {
+      state.coffeeShopList.filter { shop ->
+        shop.name.contains(q, ignoreCase = true) ||
+          shop.address?.contains(q, ignoreCase = true) == true
+      }
+    }
+  }
 
   LaunchedEffect(listState) {
     snapshotFlow {
@@ -147,31 +192,40 @@ private fun CoffeeShopScreenContent(
       )
     } else {
       val showPullToRefresh = state.isCoffeeShopListRefreshing && state.coffeeShopList.isEmpty()
-      
-      PullToRefreshBox(
-        isRefreshing = showPullToRefresh,
-        onRefresh = onRefresh,
-        modifier = Modifier.fillMaxSize()
-      ) {
-        LazyColumn(
-          state = listState,
-          modifier = Modifier.padding(8.dp)
+
+      Column(modifier = Modifier.fillMaxSize()) {
+        CoffeeSearchBar(
+          query = state.searchQuery,
+          onQueryChange = onSearchQueryChange,
+          modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp, bottom = 8.dp)
+        )
+        PullToRefreshBox(
+          isRefreshing = showPullToRefresh,
+          onRefresh = onRefresh,
+          modifier = Modifier
+            .weight(1f)
+            .fillMaxWidth()
         ) {
-          items(state.coffeeShopList) { coffeeShop ->
-            CoffeeShopItem(coffeeShop = coffeeShop)
-            Spacer(modifier = Modifier.height(8.dp))
-          }
-          if (state.isCoffeeShopListLoadingMore) {
-            item {
-              Box(
-                modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(16.dp),
-                contentAlignment = Alignment.Center
-              ) {
-                CircularProgressIndicator(
-                  color = MaterialTheme.colorScheme.primary
-                )
+          LazyColumn(
+            state = listState,
+            modifier = Modifier.padding(horizontal = 8.dp)
+          ) {
+            items(displayedCoffeeShops, key = { it.id }) { coffeeShop ->
+              CoffeeShopItem(coffeeShop = coffeeShop)
+              Spacer(modifier = Modifier.height(8.dp))
+            }
+            if (state.isCoffeeShopListLoadingMore) {
+              item {
+                Box(
+                  modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                  contentAlignment = Alignment.Center
+                ) {
+                  CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary
+                  )
+                }
               }
             }
           }

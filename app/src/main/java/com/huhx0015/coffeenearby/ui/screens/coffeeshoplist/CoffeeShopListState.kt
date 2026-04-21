@@ -8,6 +8,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class CoffeeShopListState(
   val coffeeShopList: List<CoffeeShop> = emptyList(),
+  val searchQuery: String = String(),
   val isCoffeeShopListLoading: Boolean = false,
   val isCoffeeShopListLoadingMore: Boolean = false,
   val isCoffeeShopListRefreshing: Boolean = false,
